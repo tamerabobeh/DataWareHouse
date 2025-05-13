@@ -1,0 +1,132 @@
+/*
+stored procedure: load bronze layer 
+
+script purpose:
+ this stoered procedure loades data into the bronze schema fro, extrnal csv files 
+ it perform the folowing actions 
+ truncate the bronze tables before loading the data 
+ uses thew bulk insert command to load data from csv files to bronze tables 
+usage example:
+   EXEC bronze.load_bronze 
+*/
+=======================================================================
+create 
+or alter procedure bronze.load_bronze as
+begin 
+DECLARE @START_TIME DATETIME, 
+@END_TIME DATETIME, 
+@BATCH_START_TIME DATETIME, 
+@BATCH_END_TIME DATETIME;
+BEGIN TRY 
+SET 
+  @BATCH_START_TIME = GETDATE();
+PRINT '====================================';
+PRINT 'LOADING BRONZE LAYER ';
+PRINT '====================================';
+PRINT ' LOADING CRM TABLES' PRINT '----------------------------------';
+PRINT '>>>>TRUNCATING TABLE Bronze.crm_cust_info ';
+SET 
+  @START_TIME = GETDATE() truncate table Bronze.crm_cust_info;
+PRINT '>>INSERTING DATA INTO Bronze.crm_cust_info';
+bulk insert Bronze.crm_cust_info 
+from 
+  'C:\Users\tamer\Downloads\cust_info.csv' with (
+    firstrow = 2, fieldterminator = ',', 
+    ROWTERMINATOR = '\n', tablock
+  );
+SET 
+  @END_TIME = GETDATE() PRINT 'LOADING DURATION:' + CAST(
+    DATEDIFF(SECOND, @START_TIME, @END_TIME) AS NVARCHAR
+  ) + ' SECONDS';
+PRINT '----------------------------------';
+PRINT '>>>>TRUNCATING TABLE Bronze.crm_prd_info ';
+SET 
+  @START_TIME = GETDATE() truncate table Bronze.crm_prd_info;
+PRINT '>>INSERTING DATA INTO Bronze.crm_prd_info';
+bulk insert Bronze.crm_prd_info 
+from 
+  "C:\Users\tamer\Downloads\dataset for youtube project\prd_info.csv" with (
+    firstrow = 2, fieldterminator = ',', 
+    tablock, rowterminator = '\n'
+  ) 
+SET 
+  @END_TIME = GETDATE() PRINT 'LOADING DURATION:' + CAST(
+    DATEDIFF(SECOND, @START_TIME, @END_TIME) AS NVARCHAR
+  ) + ' SECONDS';
+PRINT '----------------------------------';
+PRINT '>>>>TRUNCATING TABLE Bronze.crm_sales_datails' 
+SET 
+  @START_TIME = GETDATE() truncate table Bronze.crm_sales_datails;
+PRINT '>>INSERTING DATA INTO Bronze.crm_sales_datails';
+bulk insert Bronze.crm_sales_datails 
+from 
+  "C:\Users\tamer\Downloads\dataset for youtube project\sales_details.csv" with (
+    firstrow = 2, fieldterminator = ',', 
+    rowterminator = '\n', tablock
+  ) 
+SET 
+  @END_TIME = GETDATE() PRINT 'LOADING DURATION:' + CAST(
+    DATEDIFF(SECOND, @START_TIME, @END_TIME) AS NVARCHAR
+  ) + ' SECONDS';
+PRINT '----------------------------------';
+PRINT 'LOADING ERP TABLES';
+PRINT '----------------------------------';
+PRINT '>>>>TRUNCATING TABLE bronze.erp_cust_az';
+SET 
+  @START_TIME = GETDATE() truncate table bronze.erp_cust_az PRINT '>>INSERTING DATA INTO bronze.erp_cust_az ';
+bulk insert bronze.erp_cust_az 
+from 
+  "C:\Users\tamer\Downloads\source_erp\CUST_AZ12.csv" with (
+    firstrow = 2, fieldterminator = ',', 
+    rowterminator = '\n', tablock
+  ) 
+SET 
+  @END_TIME = GETDATE() PRINT 'LOADING DURATION:' + CAST(
+    DATEDIFF(SECOND, @START_TIME, @END_TIME) AS NVARCHAR
+  ) + ' SECONDS';
+PRINT '----------------------------------';
+PRINT '>>>>TRUNCATING TABLE bronze.erp_loc_A101';
+SET 
+  @START_TIME = GETDATE() truncate table bronze.erp_loc_A101 PRINT '>>INSERTING DATA INTO bronze.erp_loc_A101';
+bulk insert bronze.erp_loc_A101 
+from 
+  "C:\Users\tamer\Downloads\source_erp\LOC_A101.csv" with (
+    firstrow = 2, fieldterminator = ',', 
+    rowterminator = '\n', tablock
+  ) 
+SET 
+  @END_TIME = GETDATE() PRINT 'LODAING DURATION:' + CAST(
+    DATEDIFF(SECOND, @START_TIME, @END_TIME) AS NVARCHAR
+  ) + ' SECONDS';
+PRINT '----------------------------------';
+PRINT '>>>>TRUNCATING TABLE bronze.erp_px_cat_g1v2';
+SET 
+  @START_TIME = GETDATE() truncate table bronze.erp_px_cat_g1v2 PRINT '>>INSERTING DATA INTO bronze.erp_px_cat_g1v2 ';
+bulk insert bronze.erp_px_cat_g1v2 
+from 
+  "C:\Users\tamer\Downloads\source_erp\PX_CAT_G1V2.csv" with (
+    firstrow = 2, fieldterminator = ',', 
+    rowterminator = '\n', tablock
+  ) 
+SET 
+  @END_TIME = GETDATE() PRINT 'LODAING DURATION:' + CAST(
+    DATEDIFF(SECOND, @START_TIME, @END_TIME) AS NVARCHAR
+  ) + ' SECONDS';
+PRINT '----------------------------------';
+SET 
+  @BATCH_END_TIME = GETDATE();
+PRINT 'BRONZE LAYER LOADING TIME: ' + CAST(
+  DATEDIFF(
+    SECOND, @BATCH_START_TIME, @BATCH_END_TIME
+  ) AS NVARCHAR
+) + ' SECONDS' END TRY BEGIN CATCH PRINT ' ERR0R OCCOURDED DURIN LOADING' PRINT 'ERROR MESSAGE' + ERROR_MESSAGE();
+PRINT 'ERROR MESSAGE' + CAST(
+  ERROR_NUMBER() AS NVARCHAR
+);
+PRINT 'ERROR MESSAGE ' + CAST (
+  ERROR_STATE() AS NVARCHAR
+);
+PRINT 'ERROR MESSAGE' + CAST(
+  ERROR_LINE() AS NVARCHAR
+);
+END CATCH END
