@@ -6,7 +6,7 @@ scripit purpose
 */
 =================================================================
 
-create database datawarehousenew
+
 create database datawarehouse
 use datawarehouse
 create schema bronze;
